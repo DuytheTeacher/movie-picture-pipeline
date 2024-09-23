@@ -27,7 +27,7 @@ jobs:
     # Run linting job for backend directory
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: /backend
 
     steps:
       - name: Checkout code
