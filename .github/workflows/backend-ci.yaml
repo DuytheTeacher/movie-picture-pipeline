@@ -30,33 +30,33 @@ jobs:
         working-directory: ./backend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{env.PYTHON_VERSION}}
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{env.PYTHON_VERSION}}
 
-    - name: Cache pipenv dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pipenv
-        key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          pipenv-
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pipenv
+          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            pipenv-
 
-    - name: Install pipenv
-      run: |
-        pip install pipenv
+      - name: Install pipenv
+        run: |
+          pip install pipenv
 
-    - name: Install dependencies
-      run: |
-        pipenv install && pip install flake8
+      - name: Install dependencies
+        run: |
+          pipenv install && pip install flake8
 
-    - name: Run eslint
-      run: |
-        pipenv run lint
+      - name: Run eslint
+        run: |
+          pipenv run lint
 
   test:
     name: Backend Test job
@@ -67,28 +67,28 @@ jobs:
         working-directory: ./backend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Cache pipenv dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pipenv
-        key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          pipenv-
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pipenv
+          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            pipenv-
 
-    - name: Install pipenv
-      run: |
-        pip install pipenv
+      - name: Install pipenv
+        run: |
+          pip install pipenv
 
-    - name: Install dependencies
-      run: |
-        pipenv install && pip install flake8
+      - name: Install dependencies
+        run: |
+          pipenv install && pip install flake8
 
-    - name: Run test
-      run: |
-        pipenv run test
+      - name: Run test
+        run: |
+          pipenv run test
 
   build:
     name: Build Docker image
