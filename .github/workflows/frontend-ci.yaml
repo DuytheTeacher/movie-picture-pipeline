@@ -1,0 +1,113 @@
+# Workflow name
+name: frontend-ci-workflow
+
+# Triggers for the workflow
+on:
+  # Manual trigger
+  workflow_dispatch:
+
+  # Automatic trigger on pull request events targeting the main branch
+  pull_request:
+    branches:
+      - main
+    
+    # Only when code in the frontend application changes
+    paths:
+      - "frontend/**"
+
+env:
+  NODE_VERSION: 18.x
+
+# Define parallel jobs
+jobs:
+
+  linting:
+    - name: Frontend Linting job
+      runs-on: ubuntu-latest
+      # Run linting job for frontend directory
+      defaults:
+        run:
+          working-directory: ./frontend
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{env.NODE_VERSION}}
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Run eslint
+        run: |
+          npm run lint
+
+  test:
+    - name: Frontend Test job
+      runs-on: ubuntu-latest
+      # Run test job for frontend directory
+      defaults:
+        run:
+          working-directory: ./frontend
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Run test
+        run: |
+          npm run test
+
+  build:
+    - name: Build Docker image
+      runs-on: ubuntu-latest
+      needs: [ linting, test ]
+
+      # Run build job for frontend directory
+      defaults:
+        run:
+          working-directory: ./frontend
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Set up Node.js 
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{env.NODE_VERSION}}
+
+        - name: Install dependencies
+          run: |
+            npm install
+
+        - name: Build Docker image
+          env:
+            API_URL: http://localhost:5000
+            IMAGE_NAME: mp-frontend
+            IMAGE_TAG: latest
+          run: |
+            docker build --build-arg=REACT_APP_MOVIE_API_URL=$API_URL --tag=$IMAGE_NAME:$IMAGE_TAG .

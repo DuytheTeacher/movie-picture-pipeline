@@ -1,0 +1,124 @@
+# Workflow name
+name: backend-ci-workflow
+
+# Triggers for the workflow
+on:
+  # Manual trigger
+  workflow_dispatch:
+
+  # Automatic trigger on pull request events targeting the main branch
+  pull_request:
+    branches:
+      - main
+    
+    # Only when code in the backend application changes
+    paths:
+      - "backend/**"
+
+env:
+  PYTHON_VERSION: 3.11
+
+# Define parallel jobs
+jobs:
+
+  linting:
+    - name: Backend Linting job
+      runs-on: ubuntu-latest
+      # Run linting job for backend directory
+      defaults:
+        run:
+          working-directory: ./backend
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{env.PYTHON_VERSION}}
+
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pipenv
+          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            pipenv-
+
+      - name: Install pipenv
+        run: |
+          pip install pipenv
+
+      - name: Install dependencies
+        run: |
+          pipenv install && pip install flake8
+
+      - name: Run eslint
+        run: |
+          pipenv run lint
+
+  test:
+    - name: Backend Test job
+      runs-on: ubuntu-latest
+      # Run test job for backend directory
+      defaults:
+        run:
+          working-directory: ./backend
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pipenv
+          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            pipenv-
+
+      - name: Install pipenv
+        run: |
+          pip install pipenv
+
+      - name: Install dependencies
+        run: |
+          pipenv install && pip install flake8
+
+      - name: Run test
+        run: |
+          pipenv run test
+
+  build:
+    - name: Build Docker image
+      runs-on: ubuntu-latest
+      needs: [ linting, test ]
+
+      # Run build job for backend directory
+      defaults:
+        run:
+          working-directory: ./backend
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Setup Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{env.PYTHON_VERSION}}
+
+        - name: Install pipenv
+          run: |
+            pip install pipenv
+
+        - name: Install dependencies
+          run: |
+            pipenv install && pip install flake8
+
+        - name: Build Docker image
+          env:
+            IMAGE_NAME: mp-backend
+            IMAGE_TAG: latest
+          run: |
+            docker build --tag $IMAGE_NAME:$IMAGE_TAG .
