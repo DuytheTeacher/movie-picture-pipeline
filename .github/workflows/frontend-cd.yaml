@@ -10,7 +10,7 @@ on:
   push:
     branches:
       - main
-    
+
     # Only when code in the frontend application changes
     paths:
       - "frontend/**"
@@ -32,8 +32,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
-      - name: Set up Node.js 
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{env.NODE_VERSION}}
@@ -96,7 +96,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js 
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{env.NODE_VERSION}}
