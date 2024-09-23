@@ -22,30 +22,93 @@ env:
 jobs:
 
   linting:
-    - name: Backend Linting job
-      runs-on: ubuntu-latest
-      # Run linting job for backend directory
-      defaults:
-        run:
-          working-directory: ./backend
+    name: Backend Linting job
+    runs-on: ubuntu-latest
+    # Run linting job for backend directory
+    defaults:
+      run:
+        working-directory: ./backend
 
-      steps:
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Cache pipenv dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pipenv
+        key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+        restore-keys: |
+          pipenv-
+
+    - name: Install pipenv
+      run: |
+        pip install pipenv
+
+    - name: Install dependencies
+      run: |
+        pipenv install && pip install flake8
+
+    - name: Run eslint
+      run: |
+        pipenv run lint
+
+  test:
+    name: Backend Test job
+    runs-on: ubuntu-latest
+    # Run test job for backend directory
+    defaults:
+      run:
+        working-directory: ./backend
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Cache pipenv dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pipenv
+        key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
+        restore-keys: |
+          pipenv-
+
+    steps:
+    - name: Install pipenv
+      run: |
+        pip install pipenv
+
+    - name: Install dependencies
+      run: |
+        pipenv install && pip install flake8
+
+    - name: Run test
+      run: |
+        pipenv run test
+
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: [ linting, test ]
+
+    # Run build job for backend directory
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{env.PYTHON_VERSION}}
 
-      - name: Cache pipenv dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pipenv
-          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
-          restore-keys: |
-            pipenv-
-
       - name: Install pipenv
         run: |
           pip install pipenv
@@ -54,91 +117,28 @@ jobs:
         run: |
           pipenv install && pip install flake8
 
-      - name: Run eslint
-        run: |
-          pipenv run lint
-
-  test:
-    - name: Backend Test job
-      runs-on: ubuntu-latest
-      # Run test job for backend directory
-      defaults:
-        run:
-          working-directory: ./backend
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Cache pipenv dependencies
-        uses: actions/cache@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: ~/.cache/pipenv
-          key: pipenv-${{ hashFiles('**/Pipfile.lock') }}
-          restore-keys: |
-            pipenv-
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      steps:
-      - name: Install pipenv
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
+      - name: Build, Tag, and Push Docker image to Amazon ECR
+        env:
+        REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        REPOSITORY: backend
+        IMAGE_TAG: latest
         run: |
-          pip install pipenv
-
-      - name: Install dependencies
-        run: |
-          pipenv install && pip install flake8
-
-      - name: Run test
-        run: |
-          pipenv run test
-
-  build:
-    - name: Build Docker image
-      runs-on: ubuntu-latest
-      needs: [ linting, test ]
-
-      # Run build job for backend directory
-      defaults:
-        run:
-          working-directory: ./backend
-
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-
-        - name: Setup Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: ${{env.PYTHON_VERSION}}
-
-        - name: Install pipenv
-          run: |
-            pip install pipenv
-
-        - name: Install dependencies
-          run: |
-            pipenv install && pip install flake8
-
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-1
-
-        - name: Login to Amazon ECR
-          id: ecr-login
-          uses: aws-actions/amazon-ecr-login@v1
-          with:
-            mask-password: 'true'
-
-        - name: Build, Tag, and Push Docker image to Amazon ECR
-          env:
-          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          REPOSITORY: backend
-          IMAGE_TAG: latest
-          run: |
-            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-            docker images
-            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker images
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
   deploy:
     name: Deploy to Kubernetes
