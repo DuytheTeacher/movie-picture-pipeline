@@ -27,7 +27,7 @@ jobs:
     # Run linting job for frontend directory
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./starter/frontend
 
     steps:
       - name: Checkout code
@@ -60,7 +60,7 @@ jobs:
     # Run test job for frontend directory
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./starter/frontend
 
     steps:
       - name: Checkout code
@@ -90,7 +90,7 @@ jobs:
     # Run build job for frontend directory
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./starter/frontend
 
     steps:
       - name: Checkout code

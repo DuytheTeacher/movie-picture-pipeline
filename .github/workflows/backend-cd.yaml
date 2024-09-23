@@ -27,7 +27,7 @@ jobs:
     # Run linting job for backend directory
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./starter/backend
 
     steps:
       - name: Checkout code
@@ -64,7 +64,7 @@ jobs:
     # Run test job for backend directory
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./starter/backend
 
     steps:
       - name: Checkout code
@@ -98,7 +98,7 @@ jobs:
     # Run build job for backend directory
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./starter/backend
 
     steps:
       - name: Checkout code
@@ -178,9 +178,9 @@ jobs:
           IMAGE_TAG: latest
         run: |
           kustomize edit set image backend=$REGISTRY/$REPOSITORY:$IMAGE_TAG
-        working-directory: ./backend/k8s
+        working-directory: ./starter/backend/k8s
 
       - name: Apply Kubernetes resources
         run: |
           kustomize build | kubectl apply -f -
-        working-directory: ./backend/k8s
+        working-directory: ./starter/backend/k8s
