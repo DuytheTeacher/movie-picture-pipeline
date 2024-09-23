@@ -126,7 +126,6 @@ jobs:
         run: |
           aws eks update-kubeconfig --name cluster
           export EXTERNALIP=$(kubectl get svc backend -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}{"\n"}{.status.loadBalancer.ingress[0].ip}')
-        #Log the service Loadbalancer IP
           echo $EXTERNALIP
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg=REACT_APP_MOVIE_API_URL=http://$EXTERNALIP .
           docker images
