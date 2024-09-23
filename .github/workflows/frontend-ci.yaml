@@ -52,7 +52,7 @@ jobs:
 
       - name: Run eslint
         run: |
-          npm run lint
+          npm run lint -- --fix
 
   test:
     name: Frontend Test job
