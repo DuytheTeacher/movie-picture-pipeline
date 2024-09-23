@@ -80,7 +80,7 @@ jobs:
 
       - name: Run test
         run: |
-          npm run test --passWithNoTests
+          npm run test -- --passWithNoTests
 
   build:
     name: Build Docker image

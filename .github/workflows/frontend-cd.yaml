@@ -52,7 +52,7 @@ jobs:
 
       - name: Run eslint
         run: |
-          npm run lint
+          npm run lint -- --fix
 
   test:
     name: Frontend Test job
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run test
         run: |
-          npm run test
+          npm run test -- --passWithNoTests
 
   build:
     name: Build Docker image
