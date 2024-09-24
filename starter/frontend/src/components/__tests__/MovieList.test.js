@@ -12,7 +12,7 @@ const mockMoviesList = [
 ];
 
 test('Movie Title', async () => {
-  axios.get.mockResolvedValueOnce({ data: { movies: mockMoviesList } });
+  axios.get.mockResolvedValueOnce({ data: mockMoviesList });
 
   const onMovieClick = jest.fn();
   render(<MovieList onMovieClick={onMovieClick} />);
@@ -27,7 +27,7 @@ test('Movie Title', async () => {
 });
 
 test('Movie Clicked', async () => {
-  axios.get.mockResolvedValueOnce({ data: { movies: mockMoviesList } });
+  axios.get.mockResolvedValueOnce({ data: mockMoviesList });
 
   const onMovieClick = jest.fn();
   render(<MovieList onMovieClick={onMovieClick} />);
