@@ -110,4 +110,4 @@ jobs:
           IMAGE_NAME: mp-frontend
           IMAGE_TAG: latest
         run: |
-          docker build --tag $IMAGE_NAME:$IMAGE_TAG --build-arg=REACT_APP_MOVIE_API_URL=http://$localhost:5000 .
+          docker build --tag $IMAGE_NAME:$IMAGE_TAG --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 .
