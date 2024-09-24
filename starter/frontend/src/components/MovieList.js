@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from "axios";
 
 export default function MovieList({ onMovieClick }) {
@@ -10,7 +10,7 @@ export default function MovieList({ onMovieClick }) {
 
     return <ul>
         {
-            movies.map(item => <li onClick={ () => onMovieClick(item) }>{ item.title }</li>)
+            movies.map(item => <li key={ item.id } onClick={ () => onMovieClick(item) }>{ item.title }</li>)
         }
     </ul>;
 }
