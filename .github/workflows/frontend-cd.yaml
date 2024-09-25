@@ -177,3 +177,7 @@ jobs:
         run: |
           kustomize build | kubectl apply -f -
         working-directory: ./starter/frontend/k8s
+
+      - name: Log Frontend Application URL
+        run: |
+          kubectl get svc -A
