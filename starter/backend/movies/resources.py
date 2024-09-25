@@ -13,12 +13,10 @@ class Movies(MethodView):
     def get(self, movie_id):
         if movie_id is None:
             # Return a list of all movies
-            return jsonify(
-                    {
-                        "movies": [dict({"title": movie["title"], "description": movie["description"]
-                    },
-                    **{"id": i}) for i, movie in movies.items()]}
-                )
+            return jsonify({
+                    "movies": [dict({"title": movie["title"], "description": movie["description"]},
+                    **{"id": i}) for i, movie in movies.items()]
+                })
         else:
             # Return the details of a specific movie
             return jsonify({"movie": movies[str(movie_id)]})
