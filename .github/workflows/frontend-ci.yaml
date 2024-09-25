@@ -108,6 +108,6 @@ jobs:
       - name: Build Docker image
         env:
           IMAGE_NAME: mp-frontend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --tag $IMAGE_NAME:$IMAGE_TAG --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 .

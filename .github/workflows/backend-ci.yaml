@@ -120,6 +120,6 @@ jobs:
       - name: Build Docker image
         env:
           IMAGE_NAME: mp-backend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --tag $IMAGE_NAME:$IMAGE_TAG .
